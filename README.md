@@ -21,4 +21,5 @@ They will be generated using AI, and be equal in terms of length, tone etc.
 
 We then have a new dataset of human written scenes and AI generated scenes. These will be used in a psychopy experiment where participants will have to read to scenes side by side and write their preference and also which one they believe to be AI generated. Sometimes they will get both questions and sometimes they will only be asked to select their preference.
 
-[Blank diagram.pdf](https://github.com/user-attachments/files/23160050/Blank.diagram.pdf)
+[pipeline.pdf](https://github.com/user-attachments/files/23160091/pipeline.pdf)
+
