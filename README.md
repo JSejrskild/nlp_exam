@@ -1,5 +1,5 @@
 # NLP exam - LMM's and creativity
-## Does LLM's negatively affect the public view of manuscripts for tv'series
+## Does LLM’s generate tv-series scenes that are detectable and/or favoured over human written tv-series scenes.
 
 **Research Question:**
 
