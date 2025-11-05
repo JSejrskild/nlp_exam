@@ -1,1 +1,10 @@
 matplotlib == 3.10.7
+transformers == 4.57.1
+mpmath==1.3.0
+networkx==3.5
+Pillow==11.3.0
+sympy==1.14.0
+torch==2.9.0+cpu
+torchaudio==2.9.0+cpu
+torchvision==0.24.0+cpu
+sentencepiece == 0.2.1
