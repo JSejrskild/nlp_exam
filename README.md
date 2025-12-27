@@ -92,7 +92,7 @@ cd nlp_exam
 ### Set up a Python environment (optional but recommended):
 
 python -m venv env
-source env/bin/activate (On Windows: env\Scripts\activate)
+source env/bin/activate 
 
 ### Install required packages:
 
@@ -101,8 +101,8 @@ pip install -r requirements.txt
 # Usage
 All code is run from /nlp_exam
 
-## Generate manuscripts
-*For some of these steps you need an API key. You should therefore have a key.txt file at the nlp_exam level with your API key that begins with sk-proj-*
+## Generate manuscripts  
+*For some of these steps you need an API key. You should therefore have a key.txt file at the nlp_exam level with your API key that begins with sk-proj-*  
 Run the following files:
 
 datacleaning.py
