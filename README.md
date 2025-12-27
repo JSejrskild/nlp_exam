@@ -12,8 +12,9 @@ The pipeline includes:
 The goal is to contribute to the debate on AI and creativity in narrative generation and its implications for industries such as film and TV.
 
 # Repository Structure
+```{txt}
 nlp_exam/
-├── data/
+─ data/
 │   ├── DERRY-GIRLS-SCRIPT.txt
 │   ├── Manuscript-study-full-data.csv
 │   └── Manuscript-study-incremental-data.csv
