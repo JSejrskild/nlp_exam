@@ -105,23 +105,23 @@ All code is run from /nlp_exam
 *For some of these steps you need an API key. You should therefore have a key.txt file at the nlp_exam level with your API key that begins with sk-proj-*  
 Run the following files:
 
-datacleaning.py
-data_selection.py
-summary_generation.py
-GPT_prompting_API.ipynb
-GPT_datacleaning.py
+datacleaning.py  
+data_selection.py  
+summary_generation.py  
+GPT_prompting_API.ipynb  
+GPT_datacleaning.py  
 
 ## Compute Lexical meassures
 Run the following files:
 
-lexical_preproc.py
-lexical_analysis.py
-lexical_plots.py
+lexical_preproc.py  
+lexical_analysis.py  
+lexical_plots.py  
 
 ## Run analysis
 Run the following file:
 
-beh_analysis.Rmd
+beh_analysis.Rmd  
 
 
 # Counsel Chat Copyright notice
