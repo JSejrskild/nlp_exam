@@ -1,0 +1,303 @@
+---
+title: "beh_analysis"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r packages}
+# what do I need?
+install.packages("pacman")
+
+# Load and install packages:
+pacman::p_load(ggplot2, dplyr, tidyr, bayesplot, stringr)
+pacman::p_load(brms)
+
+```
+
+
+
+```{r}
+setwd("/work/nlp_exam/data")
+df <- read.csv("Manuscript-study-incremental-data.csv")
+```
+Data Cleaning and Wrangling
+```{r}
+#Make a new column for preferred text 
+
+df$preferred_text <- NA
+
+for (i in 1:nrow(df)){
+  if (df$switch[i] == "false" & df$response[i] == "right"){
+    df$preferred_text[i] <- 1 #human
+  } else if (df$switch[i] == "false" & df$response[i] == "left"){
+    df$preferred_text[i] <- 0 #llm
+  }else if (df$switch[i] == "true" & df$response[i] == "right") {
+    df$preferred_text[i] <- 0 #llm
+  } else if (df$switch[i] == "true" & df$response[i] == "left"){
+    df$preferred_text[i] <- 1 #human
+}}
+
+```
+
+
+```{r}
+table(df$preferred_text)
+#by(df$preferred_text, df$openLabId, table)
+
+
+```
+
+
+```{r}
+
+# --- Wide dataframe ---
+cols_wide <- c("age", "gender", "english", "education", "country",
+               "competency", "attitude", "impact", "creative_humor", "accept_plot",
+               "negative_diversity", "original_human", "accept_dialogue", "creative_story",
+               "creative_characters", "negative_audience", "accept_edit", "better_llm",
+               "negative_writers", "accept_script", "diminish_originality")
+
+wide_all <- df %>%
+  filter(openLabId != "openLabId") %>%
+  filter(openLabId != "WoGYtIMAa_") %>%
+  group_by(openLabId) %>%   # group by ID
+  summarise(across(all_of(cols_wide), ~ first(.[!is.na(.) & . != ""])), .groups = "drop")
+
+# renamin column names for clarity
+colnames(wide_all) <- c("openLabId","age", "gender", "english", "education", "country",
+               "Q1-competency", "Q2-attitude", "Q3-impact", "Q4-LLM_humor", "Q5-acceptable_plot",
+               "Q6-negative_diversity", "Q7-prefer_human", "Q8-acceptable_dialogue", "Q9-creative_story",
+               "Q10-creative_characters", "Q11-negative_audience", "Q12-accept_edit", "Q13-prefer_llm",
+               "Q14-negative_writers", "Q15-accept_script", "Q16-diminish_originality")
+
+#keep the numeric columns numeric
+wide_all <- wide_all %>%
+  mutate(
+    across(c( 2, 7:22), ~ as.numeric(.))
+  ) 
+
+#remove the first row
+wide_all <- wide_all[-1, ]
+
+# Add a new column for the general attitude towards llm for each participant
+wide_all <- wide_all %>%
+  mutate(
+    Q7_prefer_human_rev = (100 - `Q7-prefer_human`),
+    attitude_llm = `Q2-attitude` + `Q13-prefer_llm` + `Q7_prefer_human_rev`
+  )
+
+# --- Filtered dataframe ---
+filtered_all <- df %>%
+  select(openLabId, 14, 26:29, 47) %>%
+  filter(!is.na(preferred_text) & !is.na(as.numeric(preferred_text))) %>%
+  # Add participant_nr as incremental ID for each unique openLabId
+  mutate(participant_nr = as.integer(factor(openLabId, levels = unique(openLabId))))
+
+```
+
+
+Plotting the questions
+
+```{r}
+
+# Select columns 7:22 and ensure they are numeric
+wide_plot_data <- wide_all %>%
+  select(7:22) %>%
+  mutate(across(everything(), as.numeric)) %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
+
+# Density plots
+ggplot(wide_plot_data, aes(x = value, fill = variable)) +
+  geom_density(alpha = 0.4) +
+  facet_wrap(~variable, scales = "free") +
+  theme_minimal() +
+  labs(title = "Post Task Questionaire Answers")
+```
+
+
+```{r}
+
+# First join - add attitude_llm
+filtered_all <- filtered_all %>%
+  left_join(
+    wide_all %>% select(openLabId, attitude_llm),
+    by = "openLabId"
+  )
+
+```
+
+
+```{r}
+
+
+# Path to the overview file
+file_path <- "/work/nlp_exam/data_output/lexical_analysis/overview.csv"
+
+# Read the CSV
+overview <- read.csv(file_path, stringsAsFactors = FALSE)
+lexical_analysis <- read.csv("/work/nlp_exam/data_output/lexical_analysis/lexical_analysis.csv")
+
+# Prefixes to match (including the starting bracket)
+prefixes <- c(
+  "[Night time. Michelle, Erin, Clare, James and Orla sneak",
+  "[In the taxi rank.]",
+  "[In the room with the",
+  "[In the Quinn kitchen. Ma",
+  "[In the street.]",
+  "[On the street. The kids",
+  "[In the Quinn kitchen. The kids are",
+  "[In a dress shop.]"
+)
+
+# Filter rows where human_scene starts with any prefix literally
+matching_filenames <- overview %>%
+  filter(Reduce(`|`, lapply(prefixes, function(p) str_starts(human_scene, fixed(p))))) %>%
+  pull(filename)
+
+#add to filtered
+filtered_all$filename <- matching_filenames
+
+
+filtered_all <- filtered_all %>%
+  left_join(
+    lexical_analysis %>%
+      select(filename, everything(), -starts_with("summary")),
+    by = "filename"
+  )
+
+filtered_all <- filtered_all %>%
+  mutate(
+    mtld_diff = LLM_scene_MTLD - human_scene_MTLD,
+    cttr_diff = LLM_scene_CTTR - human_scene_CTTR,
+    sent_length_diff = LLM_scene_avg_sentence_length - human_scene_avg_sentence_length,
+    word_count_diff = LLM_scene_word_count - human_scene_word_count,
+    sent_count_diff = LLM_scene_sentence_count - human_scene_sentence_count
+  )
+
+```
+
+
+
+Mixed Logistic regresssion
+```{r}
+fit <- brm(
+  formula = preferred_text ~ 1 + (1 | participant_nr),
+  data = filtered_all,
+  family = bernoulli(link = "logit"),
+  prior = c(
+    prior(normal(0, 1), class = "Intercept") # prior for intercept
+  ),
+  chains = 4,
+  cores = 4,
+  iter = 4000,
+  seed = 123
+)
+```
+
+```{r}
+summary(fit)
+```
+
+```{r}
+
+
+post <- posterior_samples(fit)  # posterior samples of intercept
+mcmc_areas(post, pars = "b_Intercept", prob = 0.95) +
+  ggtitle("Probability of choosing LLM manuscripts over human manuscripts") +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
+  )
+
+
+```
+
+
+
+```{r}
+
+fit_lex <- brm(
+  formula = preferred_text ~ mtld_diff + cttr_diff + sent_length_diff + word_count_diff + sent_count_diff + (1 | participant_nr), 
+  data = filtered_all,
+  family = bernoulli(link = "logit"),
+  chains = 4, cores = 4, iter = 4000, seed = 123
+)
+```
+
+```{r}
+summary(fit_lex)
+```
+
+```{r}
+# Extract posterior samples
+post <- posterior_samples(fit_lex)   # <- use your model object here
+
+# Get names of all fixed effect parameters
+fixed_effects <- grep("^b_", names(post), value = TRUE)
+
+# Plot them all together
+mcmc_areas(
+  post,
+  pars = fixed_effects,
+  prob = 0.95,        # optional: 80% credible interval
+  #prob_outer = 0.95  # optional: 95% credible interval
+) +
+  ggtitle("Posterior distributions of all fixed effects") +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
+  )
+```
+
+
+```{r}
+# Extract posterior samples for fixed effects
+post <- posterior_samples(fit_lex)
+fixed_effects <- grep("^b_", names(post), value = TRUE)
+
+# Convert to long format
+post_long <- post %>%
+  select(all_of(fixed_effects)) %>%
+  pivot_longer(cols = everything(), names_to = "parameter", values_to = "value")
+
+# Plot each fixed effect separately in a grid
+ggplot(post_long, aes(x = value)) +
+  geom_density(fill = "skyblue", alpha = 0.6) +
+  facet_wrap(~parameter, scales = "free_x") +  # each facet has its own x-axis
+  theme_minimal() +
+  labs(title = "Posterior distributions of fixed effects",
+       x = "Coefficient value",
+       y = "Density") +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5)
+  )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

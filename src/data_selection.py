@@ -3,7 +3,7 @@ import shutil
 import pandas as pd
 
 # Information from scenes are in data_output/scene_summary.csv
-# Scene length more between 10 - 40
+# Scene length more between 15-30
 # Speakers more than one
 # Selected scenes copied into folder data_output/data_selected. 
 # The scenes are located in /data_output/season_2_scenes and are named as they are in the scene_summary column "scene_file"
@@ -15,9 +15,8 @@ def main():
 
     print("Loading scene summary from:", scene_summary_path)
     df = pd.read_csv(scene_summary_path)
-
     # Filter scenes
-    filtered_df = df[(df["num_lines"].between(10, 30)) & (df["num_speakers"] > 1)]
+    filtered_df = df[(df["num_lines"].between(15, 30)) & (df["num_speakers"] > 1)]
     print(f"Selected {len(filtered_df)} scenes matching criteria.")
 
     # Copy selected scenes
