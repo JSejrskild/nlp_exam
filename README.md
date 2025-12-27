@@ -91,7 +91,7 @@ cd nlp_exam
 
 ### Set up a Python environment (optional but recommended):
 
-python -m venv env
+python -m venv env   
 source env/bin/activate 
 
 ### Install required packages:
