@@ -14,7 +14,7 @@ The goal is to contribute to the debate on AI and creativity in narrative genera
 # Repository Structure
 ```{txt}
 nlp_exam/
-─ data/
+|─ data/
 │   ├── DERRY-GIRLS-SCRIPT.txt
 │   ├── Manuscript-study-full-data.csv
 │   └── Manuscript-study-incremental-data.csv
@@ -80,8 +80,7 @@ nlp_exam/
 ├── archive.zip
 ├── github_setup.sh
 └── requirements.txt
-
-    
+```  
 # Installation
 
 ### Clone the repository:
