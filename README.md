@@ -1,25 +1,137 @@
-# NLP exam - LMM's and creativity
-## Does LLM’s generate tv-series scenes that are detectable and/or favoured over human written tv-series scenes.
+# NLP exam - Authorship Concealed: Reader Preferences for Human- and LLM-Generated Television Scenes
 
-**Research Question:**
+## Project Description
+This project investigates whether large language models (LLMs) can generate TV-series scenes that are detectable as AI-generated or preferred over human written scenes in a human evaluation experiment.
 
-Does LLM’s generate tv-series scenes that are detectable and/or favoured over human written tv-series scenes. 
+The pipeline includes:
+- Splitting TV-series transcripts into scenes
+- Generating new scenes using a pre-defined prompt + summary
+- Preparing experimental material for human participant evaluation
+- Analyzing detectability and preference data collected from human experiments
 
-This research question will be investigated by giving a LLM the first season and then produce scenes from season two by prompting it with a summary of the scene. 
+The goal is to contribute to the debate on AI and creativity in narrative generation and its implications for industries such as film and TV.
 
-Hereby the essence will likely be similar (summary) and the correct characters will be used (1st season). To then evaluate the performance of the LLM we will have to set up an experiment where humans will evaluate two scenes at a time for AI-detection and preference. 
+# Repository Structure
+nlp_exam/
+├── data/
+│   ├── DERRY-GIRLS-SCRIPT.txt
+│   ├── Manuscript-study-full-data.csv
+│   └── Manuscript-study-incremental-data.csv
+├── data_output/
+│   ├── GPT_scenes/
+│   │   ├── GPT_scene_overview.csv
+│   │   ├── diff_length.png
+│   │   ├── episode_1_scene_12.txt
+│   │   ├── ...
+│   │   └── episode_6_scene_9.txt
+│   ├── data_selected/
+│   │   ├── episode_1_scene_12.txt
+│   │   ├── ...
+│   │   └── episode_6_scene_9.txt
+│   ├── lexical_analysis/
+│   │   ├── lexical_analysis.csv
+│   │   ├── lexical_summary.csv
+│   │   ├── overview.csv
+│   │   └── plots/
+│   │       └── scene_summary.png
+│   ├── season_2_episodes/
+│   │   ├── episode_1.txt
+│   │   ├── ...
+│   │   └── episode_6.txt
+│   ├── season_2_scenes/
+│   │   ├── episode_1_scene_1.txt
+│   │   ├── ...
+│   │   └── episode_6_scene_22.txt
+│   ├── seasons/
+│   │   ├── season_1.txt
+│   │   └── season_2.txt
+│   ├── summaries_BART/
+│   │   ├── scene_summaries_BART.csv
+│   │   ├── summary_episode_1_scene_12.txt
+│   │   ├── ...
+│   │   └── summary_episode_last.txt
+│   ├── summaries_MEETING/
+│   │   ├── scene_summaries_MEETING.csv
+│   │   ├── summary_episode_1_scene_12.txt
+│   │   ├── ...
+│   │   └── summary_episode_last.txt
+│   └── summaries_pegasus/
+│       ├── scene_summary.csv
+│       ├── summary_episode_1_scene_12.txt
+│       ├── ...
+│       └── GPT5_scenes.csv
+├── src/
+│   ├── beh_analysis_files/
+│   │   └── figure-latex/
+│   ├── GPT_datacleaning.py
+│   ├── GPT_prompting_API.ipynb
+│   ├── baseline_info.py
+│   ├── beh_analysis.Rmd
+│   ├── data_overview.py
+│   ├── data_selection.py
+│   ├── datacleaning.py
+│   ├── lexical_analysis.py
+│   ├── lexical_plots.py
+│   ├── lexical_preproc.py
+│   └── summary_generation.py
+├── .gitignore
+├── README.md
+├── archive.zip
+├── github_setup.sh
+└── requirements.txt
 
-This RQ can be used to shine light on the current debate on AI and creativity leading to strikes in hollywood and a new nordic film-making manifesto that also explicitly states that no manuscript can be written by AI or with counsel from AI. 
+    
+# Installation
 
-**How?**
+### Clone the repository:
 
-We will download the data and split it into episodes and seasons and scenes
+git clone https://github.com/JSejrskild/nlp_exam.git
 
-Then we will generate summaries of all scenes in season 2. 
+cd nlp_exam
 
-They will be generated using AI, and be equal in terms of length, tone etc. 
+### Set up a Python environment (optional but recommended):
 
-We then have a new dataset of human written scenes and AI generated scenes. These will be used in a psychopy experiment where participants will have to read to scenes side by side and write their preference and also which one they believe to be AI generated. Sometimes they will get both questions and sometimes they will only be asked to select their preference.
+python -m venv env
+source env/bin/activate (On Windows: env\Scripts\activate)
 
-[pipeline.pdf](https://github.com/user-attachments/files/23160091/pipeline.pdf)
+### Install required packages:
+
+pip install -r requirements.txt
+
+# Usage
+All code is run from /nlp_exam
+
+## Generate manuscripts
+*For some of these steps you need an API key. You should therefore have a key.txt file at the nlp_exam level with your API key that begins with sk-proj-*
+Run the following files:
+
+datacleaning.py
+data_selection.py
+summary_generation.py
+GPT_prompting_API.ipynb
+GPT_datacleaning.py
+
+## Compute Lexical meassures
+Run the following files:
+
+lexical_preproc.py
+lexical_analysis.py
+lexical_plots.py
+
+## Run analysis
+Run the following file:
+
+beh_analysis.Rmd
+
+
+# Counsel Chat Copyright notice
+MIT License
+
+Copyright (c) 2020 nbertagnolli
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
